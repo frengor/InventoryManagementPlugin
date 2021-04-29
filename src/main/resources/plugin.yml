@@ -1,0 +1,40 @@
+main: com.fren_gor.invManagementPlugin.InventoryManagementPlugin
+name: ${project.name}
+description: ${project.description}
+version: ${project.version}
+author: fren_gor
+website: ${project.url}
+
+api-version: 1.15
+
+commands:
+  claimitems:
+    description: Claim unobtained items
+    aliases: [takeitems, giveme]
+    permission: inventoryManagementPlugin.claimitems
+  fgive:
+    description: Fixed give command
+    aliases: [fixgive, fixedgive]
+    permission: inventoryManagementPlugin.fgive
+  bundle:
+    description: Bundles
+    aliases: [bundles]
+    permission: inventoryManagementPlugin.bundle
+
+permissions:
+  inventoryManagementPlugin.*:
+    description: Add InventoryManagementPlugin permissions
+    default: op
+    children:
+      inventoryManagementPlugin.claimitems: true
+      inventoryManagementPlugin.fgive: true
+      inventoryManagementPlugin.bundle: true
+  inventoryManagementPlugin.claimitems:
+    description: /claimitems command
+    default: true
+  inventoryManagementPlugin.fgive:
+    description: /fgive command
+    default: op
+  inventoryManagementPlugin.bundle:
+    description: /bundle command
+    default: op
