@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -36,9 +37,9 @@ public final class ItemStackSerializer {
     public static final String completeVersion = Bukkit.getServer().getClass().getName().split("\\.")[3];
     public static final int version = Integer.parseInt(completeVersion.split("_")[1]);
     private static final int release = Integer.parseInt(completeVersion.split("R")[1]);
-    private static Constructor<?> nbtTagCompoundConstructor, nmsItemStackContructor;
+    private static Constructor<?> nbtTagCompoundConstructor, nmsItemStackConstructor;
     private static Method aIn, aOut, createStack, asBukkitCopy, asNMSCopy, save, getTitle;
-    private static final byte VERSION = 0x01;
+    private static final byte INV_VERSION = 0x01;
 
     static {
         Class<?> nbtTagCompoundClass = ReflectionUtil.getNMSClass("NBTTagCompound");
@@ -51,7 +52,7 @@ public final class ItemStackSerializer {
             e.printStackTrace();
         }
         try {
-            aIn = nbtCompressedStreamToolsClass.getMethod("a", DataInputStream.class);
+            aIn = nbtCompressedStreamToolsClass.getMethod("a", version < 16 || (version == 16 && release == 1) ? DataInputStream.class : DataInput.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -74,8 +75,8 @@ public final class ItemStackSerializer {
                 case 14:
                 case 15:
                 case 16: {
-                    nmsItemStackContructor = nmsItemStackClass.getDeclaredConstructor(nbtTagCompoundClass);
-                    nmsItemStackContructor.setAccessible(true);
+                    nmsItemStackConstructor = nmsItemStackClass.getDeclaredConstructor(nbtTagCompoundClass);
+                    nmsItemStackConstructor.setAccessible(true);
                     break;
                 }
                 default:
@@ -113,7 +114,7 @@ public final class ItemStackSerializer {
             return new ItemStack(Material.AIR);
         }
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(new BigInteger(data, 32).toByteArray());
-             DataInputStream dataInputStream = new DataInputStream(inputStream);) {
+             DataInputStream dataInputStream = new DataInputStream(inputStream)) {
             Object nbtTagCompound = aIn.invoke(null, dataInputStream);
             Object craftItemStack = craftNMSItemStack(nbtTagCompound);
             return (ItemStack) asBukkitCopy.invoke(null, craftItemStack);
@@ -147,11 +148,11 @@ public final class ItemStackSerializer {
             return "";
         }
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             DataOutputStream dataOutput = new DataOutputStream(outputStream);) {
+             DataOutputStream dataOutput = new DataOutputStream(outputStream)) {
             Object nbtTagCompound = nbtTagCompoundConstructor.newInstance();
             Object nmsItemStack = asNMSCopy.invoke(null, item);
             save.invoke(nmsItemStack, nbtTagCompound);
-            aOut.invoke(null, nbtTagCompound, (DataOutput) dataOutput);
+            aOut.invoke(null, nbtTagCompound, dataOutput);
             return new BigInteger(1, outputStream.toByteArray()).toString(32);
         } catch (ReflectiveOperationException | IOException e) {
             e.printStackTrace();
@@ -181,11 +182,11 @@ public final class ItemStackSerializer {
     public static String serializeInventory(Inventory inv) {
         Validate.notNull(inv, "Inventory cannot be null");
         Validate.isTrue(inv.getType() == InventoryType.CHEST,
-                "Illegal inventory type " + inv.getType().toString() + "(expected CHEST).");
+                "Illegal inventory type " + inv.getType() + "(expected CHEST).");
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             DataOutputStream dataOutput = new DataOutputStream(outputStream);) {
-            dataOutput.writeByte(VERSION);
+             DataOutputStream dataOutput = new DataOutputStream(outputStream)) {
+            dataOutput.writeByte(INV_VERSION);
 
             dataOutput.writeByte(inv.getSize());
             if (version < 14) {
@@ -227,13 +228,13 @@ public final class ItemStackSerializer {
         Validate.isTrue(!data.isEmpty(), "Data cannot be empty");
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(new BigInteger(data, 32).toByteArray());
-             DataInputStream dataInputStream = new DataInputStream(inputStream);) {
+             DataInputStream dataInputStream = new DataInputStream(inputStream)) {
 
             int version = dataInputStream.readByte();
 
-            if (version != VERSION)
+            if (version != INV_VERSION)
                 throw new DeserializationException("Invalid inventory version \"" + version
-                        + "\". The only supported version is the  \"" + VERSION + "\".");
+                        + "\". The only supported version is the  \"" + INV_VERSION + "\".");
 
             int size = dataInputStream.readByte();
             boolean present = dataInputStream.readBoolean();
@@ -288,7 +289,7 @@ public final class ItemStackSerializer {
             case 14:
             case 15:
             case 16: {
-                return nmsItemStackContructor.newInstance(nbtTagCompound);
+                return nmsItemStackConstructor.newInstance(nbtTagCompound);
             }
             default:
                 return null;
