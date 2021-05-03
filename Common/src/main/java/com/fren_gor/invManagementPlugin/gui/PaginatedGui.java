@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public abstract class PaginatedGui implements InventoryHolder, BlockGuiInteractions, ClickListener, CloseListener {
 
-    private static final int ITEMS_PER_PAGE = 45;
+    public static final int ITEMS_PER_PAGE = 45;
     private static final ItemStack GRAY_PANEL = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
     private static final ItemStack BARRIER = new ItemStack(Material.BARRIER);
     private static final ItemStack LEFT_ARROW = Heads.ARROW_LEFT.getItem(), RIGHT_ARROW = Heads.ARROW_RIGHT.getItem();
@@ -46,14 +46,14 @@ public abstract class PaginatedGui implements InventoryHolder, BlockGuiInteracti
     }
 
     @Getter
-    private final Plugin plugin;
+    protected final Plugin plugin;
     @Getter
-    private final Player player;
+    protected final Player player;
     @Getter
-    private final String title;
-    private final ArrayList<ItemStack> items;
+    protected final String title;
+    protected final ArrayList<ItemStack> items;
     @Getter
-    private final int page;
+    protected final int page;
 
     public PaginatedGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, ItemStack... items) {
         this.plugin = validatePlugin(plugin);
@@ -107,10 +107,6 @@ public abstract class PaginatedGui implements InventoryHolder, BlockGuiInteracti
             arr.add(it.clone());
         }
         return arr;
-    }
-
-    protected ArrayList<ItemStack> getItemsUnsafe() {
-        return items;
     }
 
     @Override

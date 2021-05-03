@@ -1,18 +1,28 @@
 package com.fren_gor.invManagementPlugin.command;
 
-import com.fren_gor.invManagementPlugin.gui.ClaimGui;
-import lombok.RequiredArgsConstructor;
 import com.fren_gor.invManagementPlugin.InventoryManagementPlugin;
+import com.fren_gor.invManagementPlugin.api.InvResult;
+import com.fren_gor.invManagementPlugin.api.SafeInventoryActions;
+import com.fren_gor.invManagementPlugin.gui.PaginatedGui;
+import com.fren_gor.invManagementPlugin.util.serializable.Items;
+import lombok.RequiredArgsConstructor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public class ClaimItems implements CommandExecutor, TabCompleter {
@@ -34,7 +44,15 @@ public class ClaimItems implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        new ClaimGui(p);
+        List<ItemStack> list;
+        Items items = InventoryManagementPlugin.getInstance().loadItems(p);
+        if (items == null) {
+            list = Collections.emptyList();
+        } else {
+            list = Objects.requireNonNull(items.getItems());
+        }
+
+        new ClaimGui(instance, p, "", list);
         return true;
     }
 
@@ -42,4 +60,74 @@ public class ClaimItems implements CommandExecutor, TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         return Collections.emptyList();
     }
+
+    private static class ClaimGui extends PaginatedGui {
+
+        public ClaimGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, List<ItemStack> items) {
+            super(plugin, player, title, items);
+        }
+
+        public ClaimGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, @NotNull ArrayList<ItemStack> items, int page) {
+            super(plugin, player, title, items, page);
+        }
+
+        @Override
+        public void onClick(@NotNull InventoryClickEvent e) {
+            int slot = e.getSlot();
+
+            if (slot > 44) {
+                switch (slot) {
+                    case 45:
+                        if (page > 1)
+                            new ClaimGui(plugin, player, title, items, page - 1);
+                        break;
+                    case 49:
+                        player.closeInventory();
+                        break;
+                    case 53:
+                        if (items.size() > page * ITEMS_PER_PAGE)
+                            new ClaimGui(plugin, player, title, items, page + 1);
+                        break;
+                }
+                return;
+            }
+
+            int index = (page - 1) * ITEMS_PER_PAGE + slot;
+
+            if (index >= items.size()) {
+                return;
+            }
+
+            ItemStack it = items.remove(index);
+
+            InvResult res = SafeInventoryActions.addItem(player.getInventory(), it);
+
+            if (res == InvResult.MODIFIED) {
+                // p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                if (items.size() == 0) {
+                    InventoryManagementPlugin.getInstance().remove(player);
+                    player.sendMessage(InventoryManagementPlugin.getInstance().getClaimitemsAllItemsClaimed());
+                    player.closeInventory();
+                    return;
+                }
+                InventoryManagementPlugin.getInstance().save(new Items(player.getUniqueId(), items));
+                new ClaimGui(plugin, player, title, items, page);
+            } else {
+                player.closeInventory();
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                if (res == InvResult.NOT_ENOUGH_SPACE) {
+                    player.sendMessage("§cYou don't have enough space in your inventory.");
+                } else {
+                    player.sendMessage("§cCouldn't add the item to your inventory.");
+                }
+
+            }
+        }
+
+        @Override
+        public void onClose(@NotNull InventoryCloseEvent event) {
+        }
+    }
+
 }

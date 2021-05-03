@@ -1,7 +1,10 @@
-package com.fren_gor.invManagementPlugin.api.gui;
+package com.fren_gor.invManagementPlugin.gui;
 
+import com.fren_gor.invManagementPlugin.api.gui.BlockGuiInteractions;
+import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
+import com.fren_gor.invManagementPlugin.api.gui.CloseListener;
 import lombok.Getter;
-import com.fren_gor.invManagementPlugin.InventoryManagementPlugin;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,7 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -20,7 +23,7 @@ import java.util.function.Consumer;
 /**
  * A simple confirmation gui.
  */
-public class ConfirmGui implements InventoryHolder, BlockGuiInteractions, ClickListener, CloseListener {
+public final class ConfirmGui implements InventoryHolder, BlockGuiInteractions, ClickListener, CloseListener {
 
     /**
      * The result of a {@link ConfirmGui}
@@ -62,20 +65,18 @@ public class ConfirmGui implements InventoryHolder, BlockGuiInteractions, ClickL
     /**
      * Creates a new ConfirmGui and <strong>opens it to the player</strong>.
      *
+     * @param plugin The plugin creating this gui
      * @param player The player to open the gui to
      * @param title The gui title
      * @param resultConsumer The consumer to execute after the player has made a choice.
      */
-    public ConfirmGui(@NotNull Player player, @NotNull String title, @NotNull Consumer<Result> resultConsumer) {
+    public ConfirmGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, @NotNull Consumer<Result> resultConsumer) {
+        Validate.notNull(plugin, "Plugin is null.");
+        Validate.isTrue(plugin.isEnabled(), "Plugin is not enabled.");
         this.player = Objects.requireNonNull(player);
         this.title = Objects.requireNonNull(title);
         this.resultConsumer = Objects.requireNonNull(resultConsumer);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                player.openInventory(getInventory());
-            }
-        }.runTask(InventoryManagementPlugin.getInstance());
+        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     @Override

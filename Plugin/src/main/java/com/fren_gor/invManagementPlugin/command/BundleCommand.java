@@ -1,12 +1,12 @@
 package com.fren_gor.invManagementPlugin.command;
 
-import com.fren_gor.invManagementPlugin.gui.EmptyGui;
-import lombok.RequiredArgsConstructor;
 import com.fren_gor.invManagementPlugin.BundleManager;
 import com.fren_gor.invManagementPlugin.api.SafeInventoryActions;
-import com.fren_gor.invManagementPlugin.api.gui.ConfirmGui;
-import com.fren_gor.invManagementPlugin.api.gui.ConfirmGui.Result;
+import com.fren_gor.invManagementPlugin.gui.ConfirmGui;
+import com.fren_gor.invManagementPlugin.gui.ConfirmGui.Result;
+import com.fren_gor.invManagementPlugin.gui.EmptyGui;
 import com.fren_gor.invManagementPlugin.util.serializable.Bundle;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -14,6 +14,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -121,28 +123,35 @@ public class BundleCommand implements CommandExecutor, TabCompleter {
     }
 
     private void openEditor(@NotNull Player p, @NotNull String name) {
-        new EmptyGui(p, "Creating bundle: " + name, 54, e -> {
-            ItemStack[] it = e.getInventory().getStorageContents();
-            List<ItemStack> l = new ArrayList<>(it.length);
-            for (ItemStack i : it) {
-                if (i != null && i.getType() != Material.AIR)
-                    l.add(i.clone());
-            }
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    new ConfirmGui(p, "Create bundle?", r -> {
-                        if (r == Result.YES) {
-                            manager.save(new Bundle(name, l));
-                            p.sendMessage("§aSuccessfully created bundle " + name + '.');
-                        } else {
-                            SafeInventoryActions.addItem(p.getInventory(), l);
-                            p.sendMessage("§cNo changes has been applied.");
-                        }
-                    });
+        new EmptyGui(manager.getPlugin(), p, "Creating bundle: " + name, 54) {
+            @Override
+            public void onClick(@NotNull InventoryClickEvent e) {
+                ItemStack[] it = e.getInventory().getStorageContents();
+                List<ItemStack> l = new ArrayList<>(it.length);
+                for (ItemStack i : it) {
+                    if (i != null && i.getType() != Material.AIR)
+                        l.add(i.clone());
                 }
-            }.runTask(manager.getPlugin());
-        });
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        new ConfirmGui(manager.getPlugin(), p, "Create bundle?", r -> {
+                            if (r == Result.YES) {
+                                manager.save(new Bundle(name, l));
+                                p.sendMessage("§aSuccessfully created bundle " + name + '.');
+                            } else {
+                                SafeInventoryActions.addItem(p.getInventory(), l);
+                                p.sendMessage("§cNo changes has been applied.");
+                            }
+                        });
+                    }
+                }.runTask(manager.getPlugin());
+            }
+
+            @Override
+            public void onClose(@NotNull InventoryCloseEvent event) {
+            }
+        };
     }
 
     private static List<String> filterTabCompleteOptions(Collection<String> options, String... args) {

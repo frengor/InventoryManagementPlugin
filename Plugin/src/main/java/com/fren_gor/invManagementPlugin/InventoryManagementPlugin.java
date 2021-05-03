@@ -3,7 +3,6 @@ package com.fren_gor.invManagementPlugin;
 import com.fren_gor.invManagementPlugin.command.BundleCommand;
 import com.fren_gor.invManagementPlugin.command.ClaimItems;
 import com.fren_gor.invManagementPlugin.command.FGive;
-import com.fren_gor.invManagementPlugin.gui.GuiListener;
 import com.fren_gor.invManagementPlugin.util.SavingUtil;
 import com.fren_gor.invManagementPlugin.util.serializable.Bundle;
 import lombok.Getter;

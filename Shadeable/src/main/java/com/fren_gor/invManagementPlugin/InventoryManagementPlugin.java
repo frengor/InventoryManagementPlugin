@@ -7,11 +7,11 @@ public final class InventoryManagementPlugin {
 
     private GuiListener guiListener;
 
-    public void onEnable(@NotNull Plugin plugin) {
+    public void enable(@NotNull Plugin plugin) {
         guiListener = new GuiListener(plugin);
     }
 
-    public void onDisable() {
+    public void disable() {
         guiListener.unregister();
     }
 
