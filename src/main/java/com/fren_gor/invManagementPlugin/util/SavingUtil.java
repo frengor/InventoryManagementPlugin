@@ -62,11 +62,11 @@ public class SavingUtil<S extends ConfigurationSerializable> {
         } catch (Exception e) {
             e.printStackTrace();
             Logger log = instance.getLogger();
-            log.severe("Trying to save direcly to " + f.getName());
+            log.severe("Trying to save directly to " + f.getName());
             try {
                 yaml.save(f);
             } catch (Exception e1) {
-                log.severe("Couldn't save direcly to " + f.getName());
+                log.severe("Couldn't save directly to " + f.getName());
                 e1.printStackTrace();
                 return;
             }
