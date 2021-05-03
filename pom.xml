@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.frengor</groupId>
-    <artifactId>inventorymanagementplugin</artifactId>
+    <artifactId>inventorymanagementplugin-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>InventoryManagementPlugin</name>
+    <name>InventoryManagementPlugin-Parent</name>
     <description>An inventory management plugin for Spigot.</description>
     <url>https://github.com/frengor/InventoryManagementPlugin</url>
     <inceptionYear>2021</inceptionYear>
@@ -29,6 +29,11 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
+    <modules>
+        <module>Shadeable</module>
+        <module>Plugin</module>
+    </modules>
 
     <repositories>
         <!-- Spigot -->
@@ -101,11 +106,6 @@
                     <include>LICENSE</include>
                     <include>NOTICE</include>
                 </includes>
-            </resource>
-            <resource>
-                <targetPath>.</targetPath>
-                <filtering>true</filtering>
-                <directory>src/main/resources/</directory>
             </resource>
         </resources>
 

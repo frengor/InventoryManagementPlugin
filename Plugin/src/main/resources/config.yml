@@ -1,0 +1,8 @@
+messages:
+  there-are-items-to-claim: "&6&lYou have unclaimed items. &eDo /claimitems to claim them!"
+  fgive-not-enough-space: "&eThere isn't enough space in your inventory for the items, they have been moved to your unclaimed items."
+  claimitems-no-items-to-claim: "&eYou already claimed every item. Hurray!"
+  claimitems-all-items-has-been-claimed: "&eYou claimed every item."
+
+actionbar:
+  there-are-items-to-claim: "&6&lYou have unclaimed items. &eDo /claimitems to claim them!"
