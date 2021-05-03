@@ -21,7 +21,7 @@ public class SavingUtil<S extends ConfigurationSerializable> {
 
     private final JavaPlugin instance;
     private final Function<S, String> getFileName;
-    private File directory;
+    private final File directory;
 
     public SavingUtil(JavaPlugin instance, Function<S, String> getFileName) {
         this.instance = Objects.requireNonNull(instance);

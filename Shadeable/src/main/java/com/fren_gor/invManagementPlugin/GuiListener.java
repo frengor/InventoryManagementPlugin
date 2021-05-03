@@ -1,10 +1,10 @@
-package com.fren_gor.invManagementPlugin.gui;
+package com.fren_gor.invManagementPlugin;
 
-import com.fren_gor.invManagementPlugin.InventoryManagementPlugin;
 import com.fren_gor.invManagementPlugin.api.gui.BlockGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
 import com.fren_gor.invManagementPlugin.api.gui.CloseListener;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,10 +14,13 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
-public class GuiListener implements Listener {
+final class GuiListener implements Listener {
 
-    public GuiListener(InventoryManagementPlugin instance) {
+    public GuiListener(@NotNull Plugin instance) {
+        Validate.notNull(instance, "Plugin is null.");
         Bukkit.getPluginManager().registerEvents(this, instance);
     }
 
@@ -37,7 +40,7 @@ public class GuiListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemMoveInventory(InventoryMoveItemEvent e) {
+    private void onItemMoveInventory(InventoryMoveItemEvent e) {
         if ((e.getSource().getHolder() instanceof BlockGuiInteractions || e.getDestination().getHolder() instanceof BlockGuiInteractions) || (e.getSource().getHolder() instanceof BlockTopGuiInteractions || e.getDestination().getHolder() instanceof BlockTopGuiInteractions)) {
             e.setCancelled(true);
         }
@@ -67,6 +70,13 @@ public class GuiListener implements Listener {
         if (e.getInventory().getHolder() instanceof CloseListener) {
             ((CloseListener) e.getInventory().getHolder()).onClose(e);
         }
+    }
+
+    public void unregister() {
+        InventoryDragEvent.getHandlerList().unregister(this);
+        InventoryMoveItemEvent.getHandlerList().unregister(this);
+        InventoryClickEvent.getHandlerList().unregister(this);
+        InventoryCloseEvent.getHandlerList().unregister(this);
     }
 
 }
