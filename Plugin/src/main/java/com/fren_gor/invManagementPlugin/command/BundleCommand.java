@@ -2,9 +2,9 @@ package com.fren_gor.invManagementPlugin.command;
 
 import com.fren_gor.invManagementPlugin.BundleManager;
 import com.fren_gor.invManagementPlugin.api.SafeInventoryActions;
-import com.fren_gor.invManagementPlugin.gui.ConfirmGui;
-import com.fren_gor.invManagementPlugin.gui.ConfirmGui.Result;
-import com.fren_gor.invManagementPlugin.gui.EmptyGui;
+import com.fren_gor.invManagementPlugin.guis.ConfirmGui;
+import com.fren_gor.invManagementPlugin.guis.ConfirmGui.Result;
+import com.fren_gor.invManagementPlugin.guis.EmptyGui;
 import com.fren_gor.invManagementPlugin.util.serializable.Bundle;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -15,7 +15,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +65,7 @@ public class BundleCommand implements CommandExecutor, TabCompleter {
             for (String s : l) {
                 j.add(s);
             }
-            sender.sendMessage("§eBundles: §7" + j.toString());
+            sender.sendMessage("§eBundles: §7" + j);
         } else if (args[0].equalsIgnoreCase("give")) {
             if (args.length != 3) {
                 sender.sendMessage("§cUsage: /bundle give <player> <bundle>");

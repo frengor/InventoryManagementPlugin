@@ -3,7 +3,7 @@ package com.fren_gor.invManagementPlugin.command;
 import com.fren_gor.invManagementPlugin.InventoryManagementPlugin;
 import com.fren_gor.invManagementPlugin.api.InvResult;
 import com.fren_gor.invManagementPlugin.api.SafeInventoryActions;
-import com.fren_gor.invManagementPlugin.gui.PaginatedGui;
+import com.fren_gor.invManagementPlugin.guis.PaginatedGui;
 import com.fren_gor.invManagementPlugin.util.serializable.Items;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Sound;
@@ -13,7 +13,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -125,9 +124,6 @@ public class ClaimItems implements CommandExecutor, TabCompleter {
             }
         }
 
-        @Override
-        public void onClose(@NotNull InventoryCloseEvent event) {
-        }
     }
 
 }

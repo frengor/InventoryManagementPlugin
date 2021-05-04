@@ -1,6 +1,5 @@
 package com.fren_gor.invManagementPlugin.util;
 
-import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 
@@ -11,6 +10,10 @@ import org.bukkit.Bukkit;
  */
 @UtilityClass
 public class ReflectionUtil {
+
+    private static final String COMPLETE_VERSION = Bukkit.getServer().getClass().getName().split("\\.")[3];
+    public static final int VERSION = Integer.parseInt(COMPLETE_VERSION.split("_")[1]);
+    public static final int RELEASE = Integer.parseInt(COMPLETE_VERSION.split("R")[1]);
 
     /**
      * @param name The class name
@@ -41,19 +44,5 @@ public class ReflectionUtil {
             return null;
         }
     }
-
-    /**
-     * Get the complete server version
-     *
-     * @return The server version
-     */
-    public static String getCompleteVersion() {
-        return Bukkit.getServer().getClass().getName().split("\\.")[3];
-    }
-
-    @Getter
-    private static final int version = Integer.parseInt(getCompleteVersion().split("_")[1]);
-    @Getter
-    private static final int release = Integer.parseInt(getCompleteVersion().split("R")[1]);
 
 }

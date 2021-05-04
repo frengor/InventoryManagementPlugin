@@ -1,7 +1,6 @@
 package com.fren_gor.invManagementPlugin.api;
 
 import com.fren_gor.invManagementPlugin.InventoryManagementPlugin;
-import com.fren_gor.invManagementPlugin.util.ReflectionUtil;
 import com.fren_gor.invManagementPlugin.util.serializable.Items;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.Validate;
@@ -10,7 +9,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -19,17 +17,6 @@ import java.util.Map;
  */
 @UtilityClass
 public class SafeInventoryActions {
-
-    private static Method asCraftCopy;
-
-    static {
-        final Class<?> craftItemStack = ReflectionUtil.getCBClass("inventory.CraftItemStack");
-        try {
-            asCraftCopy = craftItemStack.getDeclaredMethod("asCraftCopy", ItemStack.class);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Adds items to the player inventory. If not enough space is found, adds the items to the unclaimed player items.

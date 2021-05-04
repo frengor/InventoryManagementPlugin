@@ -1,7 +1,5 @@
 package com.fren_gor.invManagementPlugin.command;
 
-import lombok.RequiredArgsConstructor;
-import com.fren_gor.invManagementPlugin.InventoryManagementPlugin;
 import com.fren_gor.invManagementPlugin.api.SafeInventoryActions;
 import com.fren_gor.invManagementPlugin.util.ReflectionUtil;
 import org.bukkit.Bukkit;
@@ -23,7 +21,6 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 public class FGive implements CommandExecutor, TabCompleter {
 
     // fgive <target> <item> [count]
@@ -59,8 +56,6 @@ public class FGive implements CommandExecutor, TabCompleter {
         }
 
     }
-
-    private final InventoryManagementPlugin instance;
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
