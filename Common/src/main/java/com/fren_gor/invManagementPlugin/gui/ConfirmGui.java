@@ -58,6 +58,7 @@ public final class ConfirmGui implements InventoryHolder, BlockGuiInteractions, 
 
     @Getter
     private final Player player;
+    @Getter
     private final String title;
     private final Consumer<Result> resultConsumer;
     private boolean alreadyExecuted = false;
