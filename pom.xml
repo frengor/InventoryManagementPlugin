@@ -31,6 +31,7 @@
     </properties>
 
     <modules>
+        <module>Items</module>
         <module>Common</module>
         <module>Shadeable</module>
         <module>Plugin</module>
