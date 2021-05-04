@@ -32,6 +32,7 @@
                 <directory>..</directory>
                 <includes>
                     <include>LICENSE</include>
+                    <include>LGPL</include>
                     <include>NOTICE</include>
                 </includes>
             </resource>
