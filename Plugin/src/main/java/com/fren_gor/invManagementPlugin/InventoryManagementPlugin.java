@@ -5,8 +5,8 @@ import com.fren_gor.invManagementPlugin.command.ClaimItems;
 import com.fren_gor.invManagementPlugin.command.FGive;
 import com.fren_gor.invManagementPlugin.util.SavingUtil;
 import com.fren_gor.invManagementPlugin.util.serializable.Bundle;
-import lombok.Getter;
 import com.fren_gor.invManagementPlugin.util.serializable.Items;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -63,11 +64,11 @@ public class InventoryManagementPlugin extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
 
-        unclaimedItems = ChatColor.translateAlternateColorCodes('&', getConfig().getString("messages.there-are-items-to-claim"));
-        claimitemsNoItemToClaim = ChatColor.translateAlternateColorCodes('&', getConfig().getString("messages.claimitems-no-items-to-claim"));
-        claimitemsAllItemsClaimed = ChatColor.translateAlternateColorCodes('&', getConfig().getString("messages.claimitems-all-items-has-been-claimed"));
-        actionbarUnclaimedItems = ChatColor.translateAlternateColorCodes('&', getConfig().getString("actionbar.there-are-items-to-claim"));
-        fgiveNoFreeSpace = ChatColor.translateAlternateColorCodes('&', getConfig().getString("messages.fgive-not-enough-space"));
+        unclaimedItems = ChatColor.translateAlternateColorCodes('&', emptyIfNull(getConfig().getString("messages.there-are-items-to-claim")));
+        claimitemsNoItemToClaim = ChatColor.translateAlternateColorCodes('&', emptyIfNull(getConfig().getString("messages.claimitems-no-items-to-claim")));
+        claimitemsAllItemsClaimed = ChatColor.translateAlternateColorCodes('&', emptyIfNull(getConfig().getString("messages.claimitems-all-items-has-been-claimed")));
+        actionbarUnclaimedItems = ChatColor.translateAlternateColorCodes('&', emptyIfNull(getConfig().getString("actionbar.there-are-items-to-claim")));
+        fgiveNoFreeSpace = ChatColor.translateAlternateColorCodes('&', emptyIfNull(getConfig().getString("messages.fgive-not-enough-space")));
 
         savings = new SavingUtil<>(this, i -> i.getUuid().toString(), ".items");
         bundleManager = new BundleManager(this);
@@ -88,7 +89,7 @@ public class InventoryManagementPlugin extends JavaPlugin implements Listener {
         }
         PluginCommand fgive = Bukkit.getPluginCommand("fgive");
         if (fgive != null) {
-            FGive cmd = new FGive(this);
+            FGive cmd = new FGive();
             fgive.setExecutor(cmd);
             fgive.setTabCompleter(cmd);
         }
@@ -167,6 +168,11 @@ public class InventoryManagementPlugin extends JavaPlugin implements Listener {
 
     public void save(Items i) {
         savings.save(i);
+    }
+
+    @NotNull
+    private static String emptyIfNull(@Nullable String s) {
+        return s == null ? "" : s;
     }
 
 }
