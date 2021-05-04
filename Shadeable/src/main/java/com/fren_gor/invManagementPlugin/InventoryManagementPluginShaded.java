@@ -3,7 +3,7 @@ package com.fren_gor.invManagementPlugin;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-public final class InventoryManagementPlugin {
+public final class InventoryManagementPluginShaded {
 
     private GuiListener guiListener;
 
