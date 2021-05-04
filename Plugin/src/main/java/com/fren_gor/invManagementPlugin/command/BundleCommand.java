@@ -135,21 +135,17 @@ public class BundleCommand implements CommandExecutor, TabCompleter {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        new ConfirmGui(manager.getPlugin(), p, "Create bundle?", r -> {
+                        new ConfirmGui(plugin, player, "Create bundle?", r -> {
                             if (r == Result.YES) {
                                 manager.save(new Bundle(name, l));
-                                p.sendMessage("§aSuccessfully created bundle " + name + '.');
+                                player.sendMessage("§aSuccessfully created bundle " + name + '.');
                             } else {
-                                SafeInventoryActions.addItem(p.getInventory(), l);
-                                p.sendMessage("§cNo changes has been applied.");
+                                SafeInventoryActions.addItems(player.getInventory(), l);
+                                player.sendMessage("§cNo changes has been applied.");
                             }
                         });
                     }
                 }.runTask(manager.getPlugin());
-            }
-
-            @Override
-            public void onClose(@NotNull InventoryCloseEvent event) {
             }
         };
     }
