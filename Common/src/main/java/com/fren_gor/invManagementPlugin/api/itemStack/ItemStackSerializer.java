@@ -1,7 +1,7 @@
 package com.fren_gor.invManagementPlugin.api.itemStack;
 
+import com.fren_gor.invManagementPlugin.exceptions.DeserializationException;
 import com.fren_gor.invManagementPlugin.util.ReflectionUtil;
-import com.sun.xml.internal.ws.encoding.soap.DeserializationException;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
@@ -249,7 +249,7 @@ public final class ItemStackSerializer {
      *
      * @param obj Object to be transformed to an {@link ItemStack}
      * @return An {@link ItemStack} if the deserialization was successful, otherwise null.
-     * @throws DeserializationException If the object is not an ItemStack or the result of {@link ItemStackSerializer#serializeItemStack(ItemStack)}.
+     * @throws {@link DeserializationException} If the object is not an ItemStack or the result of {@link ItemStackSerializer#serializeItemStack(ItemStack)}.
      */
     public static ItemStack deserializeObject(Object obj) throws DeserializationException {
         if (obj instanceof ItemStack) {
