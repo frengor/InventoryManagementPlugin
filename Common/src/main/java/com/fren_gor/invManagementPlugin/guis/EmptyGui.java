@@ -1,4 +1,4 @@
-package com.fren_gor.invManagementPlugin.gui;
+package com.fren_gor.invManagementPlugin.guis;
 
 import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
 import com.fren_gor.invManagementPlugin.api.gui.CloseListener;
