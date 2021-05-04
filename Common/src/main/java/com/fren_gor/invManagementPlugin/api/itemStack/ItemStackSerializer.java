@@ -1,14 +1,13 @@
-package com.fren_gor.invManagementPlugin.util;
+package com.fren_gor.invManagementPlugin.api.itemStack;
 
-import lombok.Getter;
+import com.fren_gor.invManagementPlugin.util.ReflectionUtil;
+import com.sun.xml.internal.ws.encoding.soap.DeserializationException;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.ByteArrayInputStream;
@@ -22,8 +21,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+
+import static com.fren_gor.invManagementPlugin.util.ReflectionUtil.RELEASE;
+import static com.fren_gor.invManagementPlugin.util.ReflectionUtil.VERSION;
 
 /**
  * From: <a href="https://www.spigotmc.org/threads/how-to-serialize-itemstack-inventory-with-attributestorage.152931/#post-3077661">https://www.spigotmc.org/threads/how-to-serialize-itemstack-inventory-with-attributestorage.152931/#post-3077661</a><br>
@@ -34,9 +35,6 @@ import java.util.List;
 @UtilityClass
 public final class ItemStackSerializer {
 
-    public static final String completeVersion = Bukkit.getServer().getClass().getName().split("\\.")[3];
-    public static final int version = Integer.parseInt(completeVersion.split("_")[1]);
-    private static final int release = Integer.parseInt(completeVersion.split("R")[1]);
     private static Constructor<?> nbtTagCompoundConstructor, nmsItemStackConstructor;
     private static Method aIn, aOut, createStack, asBukkitCopy, asNMSCopy, save, getTitle;
     private static final byte INV_VERSION = 0x01;
@@ -52,7 +50,7 @@ public final class ItemStackSerializer {
             e.printStackTrace();
         }
         try {
-            aIn = nbtCompressedStreamToolsClass.getMethod("a", version < 16 || (version == 16 && release == 1) ? DataInputStream.class : DataInput.class);
+            aIn = nbtCompressedStreamToolsClass.getMethod("a", VERSION < 16 || (VERSION == 16 && RELEASE == 1) ? DataInputStream.class : DataInput.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -62,25 +60,11 @@ public final class ItemStackSerializer {
             e.printStackTrace();
         }
         try {
-            switch (version) {
-                case 8:
-                case 9:
-                case 10: {
-                    createStack = nmsItemStackClass.getMethod("createStack", nbtTagCompoundClass);
-                    break;
-                }
-                case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                case 16: {
-                    nmsItemStackConstructor = nmsItemStackClass.getDeclaredConstructor(nbtTagCompoundClass);
-                    nmsItemStackConstructor.setAccessible(true);
-                    break;
-                }
-                default:
-                    break;
+            if (VERSION < 11) {
+                createStack = nmsItemStackClass.getMethod("createStack", nbtTagCompoundClass);
+            } else {
+                nmsItemStackConstructor = nmsItemStackClass.getDeclaredConstructor(nbtTagCompoundClass);
+                nmsItemStackConstructor.setAccessible(true);
             }
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
@@ -100,7 +84,7 @@ public final class ItemStackSerializer {
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
-        if (version < 14) {
+        if (VERSION < 14) {
             try {
                 getTitle = Inventory.class.getDeclaredMethod("getTitle");
             } catch (ReflectiveOperationException e) {
@@ -189,7 +173,7 @@ public final class ItemStackSerializer {
             dataOutput.writeByte(INV_VERSION);
 
             dataOutput.writeByte(inv.getSize());
-            if (version < 14) {
+            if (VERSION < 14) {
                 dataOutput.writeBoolean(true);
                 dataOutput.writeUTF((String) getTitle.invoke(inv));
             } else {
@@ -277,121 +261,10 @@ public final class ItemStackSerializer {
     }
 
     private static Object craftNMSItemStack(Object nbtTagCompound) throws ReflectiveOperationException {
-        switch (version) {
-            case 8:
-            case 9:
-            case 10: {
-                return createStack.invoke(null, nbtTagCompound);
-            }
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16: {
-                return nmsItemStackConstructor.newInstance(nbtTagCompound);
-            }
-            default:
-                return null;
+        if (VERSION < 11) {
+            return createStack.invoke(null, nbtTagCompound);
+        } else {
+            return nmsItemStackConstructor.newInstance(nbtTagCompound);
         }
-    }
-
-    public static final class DeserializationException extends RuntimeException {
-
-        private static final long serialVersionUID = 5732914764163243723L;
-
-        public DeserializationException() {
-        }
-
-        public DeserializationException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public DeserializationException(String message) {
-            super(message);
-        }
-
-        public DeserializationException(Throwable cause) {
-            super(cause);
-        }
-
-    }
-
-    public static final class InventoryMap extends HashMap<Integer, ItemStack> {
-
-        private static final long serialVersionUID = -2375620583757374598L;
-
-        @Getter
-        private final int inventorySize;
-        @Getter
-        private String title;
-
-        public void setTitle(String title) {
-            Validate.isTrue(version > 13, "Title cannot be changed in 1.8-1.13");
-            this.title = title;
-        }
-
-        InventoryMap() {
-            throw new UnsupportedOperationException("Illegal use of constructor");
-        }
-
-        InventoryMap(int inventorySize, String title) {
-            super();
-            this.inventorySize = inventorySize;
-            this.title = title;
-        }
-
-        InventoryMap(int initialCapacity, float loadFactor, int inventorySize, String title) {
-            super(initialCapacity, loadFactor);
-            this.inventorySize = inventorySize;
-            this.title = title;
-        }
-
-        InventoryMap(int initialCapacity, int inventorySize, String title) {
-            super(initialCapacity);
-            this.inventorySize = inventorySize;
-            this.title = title;
-        }
-
-        InventoryMap(InventoryMap m, String title) {
-            super(m);
-            inventorySize = m.getInventorySize();
-            this.title = title;
-        }
-
-        public Inventory toInventory(InventoryHolder owner) {
-            Inventory inv;
-            if (title != null)
-                inv = Bukkit.createInventory(owner, inventorySize, title);
-            else
-                inv = Bukkit.createInventory(owner, inventorySize);
-            for (Entry<Integer, ItemStack> e : entrySet()) {
-                inv.setItem(e.getKey(), e.getValue() == null ? null : e.getValue().clone());
-            }
-            return inv;
-        }
-
-        public ItemStack[] getContents() {
-            ItemStack[] arr = new ItemStack[size()];
-            int i = 0;
-            for (ItemStack it : values()) {
-                arr[i++] = it.clone();
-            }
-            return arr;
-        }
-
-        public ItemStack[] getStorageContents() {
-            ItemStack[] arr = new ItemStack[inventorySize];
-            for (int i = 0; i < inventorySize; i++) {
-                ItemStack it = get(i);
-                if (it == null) {
-                    arr[i] = new ItemStack(Material.AIR);
-                } else {
-                    arr[i] = it.clone();
-                }
-            }
-            return arr;
-        }
-
     }
 }

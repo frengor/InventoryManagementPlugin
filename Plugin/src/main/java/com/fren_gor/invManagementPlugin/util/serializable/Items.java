@@ -1,6 +1,6 @@
 package com.fren_gor.invManagementPlugin.util.serializable;
 
-import com.fren_gor.invManagementPlugin.util.ItemStackSerializer;
+import com.fren_gor.invManagementPlugin.api.itemStack.ItemStackSerializer;
 import lombok.Getter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
