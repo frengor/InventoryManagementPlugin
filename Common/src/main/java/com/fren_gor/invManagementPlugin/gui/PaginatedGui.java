@@ -9,18 +9,21 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class PaginatedGui implements InventoryHolder, BlockGuiInteractions, ClickListener, CloseListener {
+public class PaginatedGui implements InventoryHolder, BlockGuiInteractions, ClickListener, CloseListener {
 
     public static final int ITEMS_PER_PAGE = 45;
     private static final ItemStack GRAY_PANEL = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
@@ -52,7 +55,6 @@ public abstract class PaginatedGui implements InventoryHolder, BlockGuiInteracti
     @Getter
     protected final String title;
     protected final ArrayList<ItemStack> items;
-    @Getter
     protected final int page;
 
     public PaginatedGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, ItemStack... items) {
@@ -101,18 +103,10 @@ public abstract class PaginatedGui implements InventoryHolder, BlockGuiInteracti
         player.openInventory(getInventory());
     }
 
-    public ArrayList<ItemStack> getItems() {
-        ArrayList<ItemStack> arr = new ArrayList<>(items.size());
-        for (ItemStack it : items) {
-            arr.add(it.clone());
-        }
-        return arr;
-    }
-
     @Override
     @NotNull
     public Inventory getInventory() {
-        Inventory inv = Bukkit.createInventory(this, 54, "");
+        Inventory inv = Bukkit.createInventory(this, 54, title);
 
         int i = 0, n = 0, min = (page - 1) * ITEMS_PER_PAGE;
         for (ItemStack it : items) {
@@ -155,4 +149,24 @@ public abstract class PaginatedGui implements InventoryHolder, BlockGuiInteracti
         return plugin;
     }
 
+    @Override
+    public void onClick(@NotNull InventoryClickEvent event) {
+    }
+
+    @Override
+    public void onClose(@NotNull InventoryCloseEvent event) {
+    }
+
+    public ArrayList<ItemStack> getItems() {
+        ArrayList<ItemStack> arr = new ArrayList<>(items.size());
+        for (ItemStack it : items) {
+            arr.add(it.clone());
+        }
+        return arr;
+    }
+
+    @Range(from = 1, to = Integer.MAX_VALUE)
+    public int getCurrentPage() {
+        return page;
+    }
 }
