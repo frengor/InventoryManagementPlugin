@@ -38,6 +38,12 @@
     </modules>
 
     <repositories>
+        <!-- fren_gor -->
+        <repository>
+            <id>fren_gor</id>
+            <url>https://nexus.frengor.com/repository/public/</url>
+        </repository>
+
         <!-- Spigot -->
         <repository>
             <id>spigot-repo</id>

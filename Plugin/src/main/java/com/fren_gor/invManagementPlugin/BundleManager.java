@@ -1,7 +1,7 @@
 package com.fren_gor.invManagementPlugin;
 
-import com.fren_gor.invManagementPlugin.util.SavingUtil;
 import com.fren_gor.invManagementPlugin.util.serializable.Bundle;
+import com.fren_gor.savingUtil.SavingUtil;
 import lombok.Getter;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.jetbrains.annotations.NotNull;
