@@ -1,6 +1,7 @@
 package com.fren_gor.invManagementPlugin.guis;
 
 import com.fren_gor.invManagementPlugin.api.gui.BlockGuiInteractions;
+import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
 import com.fren_gor.invManagementPlugin.api.gui.CloseListener;
 import lombok.Getter;
@@ -23,7 +24,7 @@ import java.util.function.Consumer;
 /**
  * A simple confirmation gui.
  */
-public final class ConfirmGui implements InventoryHolder, BlockGuiInteractions, ClickListener, CloseListener {
+public final class ConfirmGui implements InventoryHolder, BlockTopGuiInteractions, ClickListener, CloseListener {
 
     /**
      * The result of a {@link ConfirmGui}
