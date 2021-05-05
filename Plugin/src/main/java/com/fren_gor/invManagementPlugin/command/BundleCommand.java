@@ -15,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -124,7 +125,7 @@ public class BundleCommand implements CommandExecutor, TabCompleter {
     private void openEditor(@NotNull Player p, @NotNull String name) {
         new EmptyGui(manager.getPlugin(), p, "Creating bundle: " + name, 54) {
             @Override
-            public void onClick(@NotNull InventoryClickEvent e) {
+            public void onClose(@NotNull InventoryCloseEvent e) {
                 ItemStack[] it = e.getInventory().getStorageContents();
                 List<ItemStack> l = new ArrayList<>(it.length);
                 for (ItemStack i : it) {
