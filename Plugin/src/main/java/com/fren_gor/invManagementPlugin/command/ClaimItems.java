@@ -13,12 +13,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -66,34 +66,11 @@ public class ClaimItems implements CommandExecutor, TabCompleter {
             super(plugin, player, title, items);
         }
 
-        public ClaimGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, @NotNull ArrayList<ItemStack> items, int page) {
-            super(plugin, player, title, items, page);
-        }
-
         @Override
-        public void onClick(@NotNull InventoryClickEvent e) {
-            int slot = e.getSlot();
+        public void onClick(@NotNull Inventory inventory, @NotNull InventoryClickEvent e) {
+            int index = getItemIndex(e.getSlot());
 
-            if (slot > 44) {
-                switch (slot) {
-                    case 45:
-                        if (page > 1)
-                            new ClaimGui(plugin, player, title, items, page - 1);
-                        break;
-                    case 49:
-                        player.closeInventory();
-                        break;
-                    case 53:
-                        if (items.size() > page * ITEMS_PER_PAGE)
-                            new ClaimGui(plugin, player, title, items, page + 1);
-                        break;
-                }
-                return;
-            }
-
-            int index = (page - 1) * ITEMS_PER_PAGE + slot;
-
-            if (index >= items.size()) {
+            if (index == -1) {
                 return;
             }
 
@@ -111,7 +88,7 @@ public class ClaimItems implements CommandExecutor, TabCompleter {
                     return;
                 }
                 InventoryManagementPlugin.getInstance().save(new Items(player.getUniqueId(), items));
-                new ClaimGui(plugin, player, title, items, page);
+                updateInventory(inventory);
             } else {
                 player.closeInventory();
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);

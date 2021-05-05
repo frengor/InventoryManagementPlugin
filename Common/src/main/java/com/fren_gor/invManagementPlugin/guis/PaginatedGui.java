@@ -1,7 +1,7 @@
 package com.fren_gor.invManagementPlugin.guis;
 
 import com.fren_gor.invManagementPlugin.api.Heads;
-import com.fren_gor.invManagementPlugin.api.gui.BlockGuiInteractions;
+import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
 import com.fren_gor.invManagementPlugin.api.gui.CloseListener;
 import lombok.Getter;
@@ -17,13 +17,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PaginatedGui implements InventoryHolder, BlockGuiInteractions, ClickListener, CloseListener {
+public class PaginatedGui implements InventoryHolder, BlockTopGuiInteractions, ClickListener, CloseListener {
 
     public static final int ITEMS_PER_PAGE = 45;
     private static final ItemStack GRAY_PANEL = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
@@ -55,7 +56,7 @@ public class PaginatedGui implements InventoryHolder, BlockGuiInteractions, Clic
     @Getter
     protected final String title;
     protected final ArrayList<ItemStack> items;
-    protected final int page;
+    private int page;
 
     public PaginatedGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, ItemStack... items) {
         this.plugin = validatePlugin(plugin);
@@ -91,54 +92,20 @@ public class PaginatedGui implements InventoryHolder, BlockGuiInteractions, Clic
         Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
-    protected PaginatedGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, @NotNull ArrayList<ItemStack> items, int page) {
-        this.plugin = validatePlugin(plugin);
-        this.player = Objects.requireNonNull(player);
-        this.title = Objects.requireNonNull(title);
-        this.items = Objects.requireNonNull(items);
-        if (page < 1 || items.size() < ITEMS_PER_PAGE)
-            this.page = 1;
-        else
-            this.page = page;
-        player.openInventory(getInventory());
-    }
-
     @Override
     @NotNull
     public Inventory getInventory() {
         Inventory inv = Bukkit.createInventory(this, 54, title);
 
-        int i = 0, n = 0, min = (page - 1) * ITEMS_PER_PAGE;
-        for (ItemStack it : items) {
-            if (i < min) {
-                i++;
-                continue;
-            }
-            if (n >= 45) {
-                break;
-            }
-            inv.setItem(n, it.clone());
-            n++;
+        for (int i = 46; i < 53; i++) {
+            inv.setItem(i, GRAY_PANEL.clone());
         }
 
-        for (n = 46; n < 53; n++) {
-            inv.setItem(n, GRAY_PANEL.clone());
-        }
+        customizeInventory(inv);
+
+        updateInventory(inv);
 
         inv.setItem(49, BARRIER.clone());
-
-        if (page > 1) {
-            // Set 45 slot
-            inv.setItem(45, LEFT_ARROW.clone());
-        } else {
-            inv.setItem(45, GRAY_PANEL.clone());
-        }
-        if (items.size() > min + ITEMS_PER_PAGE) {
-            // Set 53 slot
-            inv.setItem(53, RIGHT_ARROW.clone());
-        } else {
-            inv.setItem(53, GRAY_PANEL.clone());
-        }
         return inv;
     }
 
@@ -150,11 +117,53 @@ public class PaginatedGui implements InventoryHolder, BlockGuiInteractions, Clic
     }
 
     @Override
-    public void onClick(@NotNull InventoryClickEvent event) {
+    public final void onClick(@NotNull InventoryClickEvent e) {
+        switch (e.getSlot()) {
+            case 45:
+                previousPage(e.getClickedInventory());
+                break;
+            case 49:
+                player.closeInventory();
+                break;
+            case 53:
+                nextPage(e.getClickedInventory());
+                break;
+            default:
+                onClick(e.getClickedInventory(), e);
+                break;
+        }
+    }
+
+    public void onClick(@NotNull Inventory inventory, @NotNull InventoryClickEvent event) {
     }
 
     @Override
     public void onClose(@NotNull InventoryCloseEvent event) {
+    }
+
+    @Nullable
+    public ItemStack getItem(int slot) {
+        return getItemInPage(slot, page);
+    }
+
+    @Nullable
+    public ItemStack getItemInPage(int slot, int page) {
+        int i = getItemIndex(slot, page);
+        return i == -1 ? null : items.get(i);
+    }
+
+    @Range(from = -1, to = Integer.MAX_VALUE)
+    public int getItemIndex(int slot) {
+        return getItemIndex(slot, page);
+    }
+
+    @Range(from = -1, to = Integer.MAX_VALUE)
+    public int getItemIndex(int slot, int page) {
+        if (page <= 0 || slot < 0 || slot > 44) {
+            return -1;
+        }
+        int i = (page - 1) * ITEMS_PER_PAGE + slot;
+        return i >= items.size() ? -1 : i;
     }
 
     public ArrayList<ItemStack> getItems() {
@@ -165,8 +174,81 @@ public class PaginatedGui implements InventoryHolder, BlockGuiInteractions, Clic
         return arr;
     }
 
+    public ArrayList<ItemStack> getPageItems() {
+        ArrayList<ItemStack> arr = new ArrayList<>(45);
+        int min = getPageItemsMinIndex(), max = Math.min(getPageItemsMaxIndex(), items.size());
+        for (int i = min; i < max; i++) {
+            arr.add(items.get(i));
+        }
+        return arr;
+    }
+
+    public boolean previousPage(@NotNull Inventory inv) {
+        Validate.notNull(inv, "Inventory is null.");
+        Validate.isTrue(inv.getHolder() == this, "Invalid inventory.");
+        if (page <= 1) {
+            return false;
+        }
+        page--;
+        updateInventory(inv);
+        return true;
+    }
+
+    public boolean nextPage(@NotNull Inventory inv) {
+        Validate.notNull(inv, "Inventory is null.");
+        Validate.isTrue(inv.getHolder() == this, "Invalid inventory.");
+        if (items.size() <= page * ITEMS_PER_PAGE) {
+            return false;
+        }
+        page++;
+        updateInventory(inv);
+        return true;
+    }
+
+    public void updateInventory(@NotNull Inventory inv) {
+        Validate.notNull(inv, "Inventory is null.");
+        int min = getPageItemsMinIndex(), max = Math.min(getPageItemsMaxIndex(), items.size());
+        int n = 0;
+        for (int i = min; i < max; n++, i++) {
+            inv.setItem(n, items.get(i));
+        }
+        for (; n < 45; n++) {
+            inv.setItem(n, new ItemStack(Material.AIR));
+        }
+        if (page > 1) {
+            // Set 45th slot
+            inv.setItem(45, LEFT_ARROW.clone());
+        } else {
+            inv.setItem(45, GRAY_PANEL.clone());
+        }
+        if (items.size() > getPageItemsMinIndex() + ITEMS_PER_PAGE) {
+            // Set 53th slot
+            inv.setItem(53, RIGHT_ARROW.clone());
+        } else {
+            inv.setItem(53, GRAY_PANEL.clone());
+        }
+    }
+
     @Range(from = 1, to = Integer.MAX_VALUE)
     public int getCurrentPage() {
         return page;
     }
+
+    protected int getPageItemsMinIndex() {
+        return (page - 1) * ITEMS_PER_PAGE;
+    }
+
+    protected int getPageItemsMaxIndex() {
+        return (page - 1) * ITEMS_PER_PAGE + 45;
+    }
+
+    /**
+     * Method to set custom items in slots 46, 47, 48, 50, 51, and 52.
+     * <p>This items are useful to add functionalities to the gui, so they aren't updated when the user changes page.
+     *
+     * @param inventory The inventory to modify.
+     */
+    protected void customizeInventory(@NotNull Inventory inventory) {
+    }
+
 }
