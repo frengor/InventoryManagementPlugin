@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,56 +50,48 @@ public class ClaimItems implements CommandExecutor, TabCompleter {
             list = Objects.requireNonNull(items.getItems());
         }
 
-        new ClaimGui(instance, p, "", list).openInventory();
+        new PaginatedGui(instance, p, "Click to claim items:", list) {
+            @Override
+            public void onClick(@NotNull Inventory inventory, @NotNull InventoryClickEvent e) {
+                int index = getItemIndex(e.getSlot());
+
+                if (index == -1) {
+                    return;
+                }
+
+                ItemStack it = items.remove(index);
+
+                InvResult res = SafeInventoryActions.addItem(player.getInventory(), it);
+
+                if (res == InvResult.MODIFIED) {
+                    // p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                    if (items.size() == 0) {
+                        InventoryManagementPlugin.getInstance().remove(player);
+                        player.sendMessage(InventoryManagementPlugin.getInstance().getClaimitemsAllItemsClaimed());
+                        player.closeInventory();
+                        return;
+                    }
+                    InventoryManagementPlugin.getInstance().save(new Items(player.getUniqueId(), items));
+                    updateInventory(inventory);
+                } else {
+                    player.closeInventory();
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                    if (res == InvResult.NOT_ENOUGH_SPACE) {
+                        player.sendMessage("§cYou don't have enough space in your inventory.");
+                    } else {
+                        player.sendMessage("§cCouldn't add the item to your inventory.");
+                    }
+
+                }
+            }
+        }.openInventory();
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         return Collections.emptyList();
-    }
-
-    private static class ClaimGui extends PaginatedGui {
-
-        public ClaimGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, List<ItemStack> items) {
-            super(plugin, player, title, items);
-        }
-
-        @Override
-        public void onClick(@NotNull Inventory inventory, @NotNull InventoryClickEvent e) {
-            int index = getItemIndex(e.getSlot());
-
-            if (index == -1) {
-                return;
-            }
-
-            ItemStack it = items.remove(index);
-
-            InvResult res = SafeInventoryActions.addItem(player.getInventory(), it);
-
-            if (res == InvResult.MODIFIED) {
-                // p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-                if (items.size() == 0) {
-                    InventoryManagementPlugin.getInstance().remove(player);
-                    player.sendMessage(InventoryManagementPlugin.getInstance().getClaimitemsAllItemsClaimed());
-                    player.closeInventory();
-                    return;
-                }
-                InventoryManagementPlugin.getInstance().save(new Items(player.getUniqueId(), items));
-                updateInventory(inventory);
-            } else {
-                player.closeInventory();
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                if (res == InvResult.NOT_ENOUGH_SPACE) {
-                    player.sendMessage("§cYou don't have enough space in your inventory.");
-                } else {
-                    player.sendMessage("§cCouldn't add the item to your inventory.");
-                }
-
-            }
-        }
-
     }
 
 }

@@ -20,10 +20,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -126,7 +126,7 @@ public class BundleCommand implements CommandExecutor, TabCompleter {
             @Override
             public void onClose(@NotNull InventoryCloseEvent e) {
                 ItemStack[] it = e.getInventory().getStorageContents();
-                List<ItemStack> l = new ArrayList<>(it.length);
+                List<ItemStack> l = new LinkedList<>();
                 for (ItemStack i : it) {
                     if (i != null && i.getType() != Material.AIR)
                         l.add(i.clone());
