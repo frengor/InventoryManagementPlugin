@@ -51,7 +51,7 @@ public class ClaimItems implements CommandExecutor, TabCompleter {
             list = Objects.requireNonNull(items.getItems());
         }
 
-        new ClaimGui(instance, p, "", list);
+        new ClaimGui(instance, p, "", list).openInventory();
         return true;
     }
 

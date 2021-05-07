@@ -142,11 +142,11 @@ public class BundleCommand implements CommandExecutor, TabCompleter {
                                 SafeInventoryActions.addItems(player.getInventory(), l);
                                 player.sendMessage("§cNo changes has been applied.");
                             }
-                        });
+                        }).openInventory();
                     }
                 }.runTask(manager.getPlugin());
             }
-        };
+        }.openInventory();
     }
 
     private static List<String> filterTabCompleteOptions(Collection<String> options, String... args) {
