@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -24,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PaginatedGui implements InventoryHolder, BlockTopGuiInteractions, ClickListener, CloseListener {
+public class PaginatedGui extends OpenableInventory implements BlockTopGuiInteractions, ClickListener, CloseListener {
 
     public static final int ITEMS_PER_PAGE = 45;
     private static final ItemStack GRAY_PANEL = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
@@ -50,17 +49,12 @@ public class PaginatedGui implements InventoryHolder, BlockTopGuiInteractions, C
     }
 
     @Getter
-    protected final Plugin plugin;
-    @Getter
-    protected final Player player;
-    @Getter
     protected final String title;
     protected final ArrayList<ItemStack> items;
     private int page;
 
     public PaginatedGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, ItemStack... items) {
-        this.plugin = validatePlugin(plugin);
-        this.player = Objects.requireNonNull(player);
+        super(plugin, player);
         this.title = Objects.requireNonNull(title);
         if (items == null) {
             this.items = new ArrayList<>();
@@ -72,12 +66,10 @@ public class PaginatedGui implements InventoryHolder, BlockTopGuiInteractions, C
             }
         }
         page = 1;
-        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     public PaginatedGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, List<ItemStack> items) {
-        this.plugin = validatePlugin(plugin);
-        this.player = Objects.requireNonNull(player);
+        super(plugin, player);
         this.title = Objects.requireNonNull(title);
         if (items == null) {
             this.items = new ArrayList<>();
@@ -89,7 +81,6 @@ public class PaginatedGui implements InventoryHolder, BlockTopGuiInteractions, C
             }
         }
         page = 1;
-        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     @Override
@@ -109,11 +100,9 @@ public class PaginatedGui implements InventoryHolder, BlockTopGuiInteractions, C
         return inv;
     }
 
-    @NotNull
-    private static Plugin validatePlugin(Plugin plugin) {
-        Validate.notNull(plugin, "Plugin is null.");
-        Validate.isTrue(plugin.isEnabled(), "Plugin is not enabled.");
-        return plugin;
+    @Override
+    public void openInventory() {
+        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     @Override
@@ -239,7 +228,7 @@ public class PaginatedGui implements InventoryHolder, BlockTopGuiInteractions, C
     }
 
     protected int getPageItemsMaxIndex() {
-        return (page - 1) * ITEMS_PER_PAGE + 45;
+        return getPageItemsMinIndex() + 45;
     }
 
     /**

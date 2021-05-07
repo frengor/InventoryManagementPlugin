@@ -9,37 +9,33 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class EmptyGui implements InventoryHolder, ClickListener, CloseListener {
+public class EmptyGui extends OpenableInventory implements ClickListener, CloseListener {
 
-    @Getter
-    protected final Plugin plugin;
-    @Getter
-    protected final Player player;
     @Getter
     protected final String title;
     protected final int size;
 
     public EmptyGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, int size) {
-        Validate.notNull(plugin, "Plugin is null.");
-        Validate.isTrue(plugin.isEnabled(), "Plugin is not enabled.");
+        super(plugin, player);
         Validate.isTrue(size > 0 && size <= 54 && size % 9 == 0, "Invalid size");
-        this.plugin = plugin;
-        this.title = Objects.requireNonNull(title);
-        this.player = Objects.requireNonNull(player);
+        this.title = Objects.requireNonNull(title, "Title is null.");
         this.size = size;
-        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     @Override
     @NotNull
     public Inventory getInventory() {
         return Bukkit.createInventory(this, size, title);
+    }
+
+    @Override
+    public void openInventory() {
+        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.fren_gor.invManagementPlugin.guis;
 
-import com.fren_gor.invManagementPlugin.api.gui.BlockGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
 import com.fren_gor.invManagementPlugin.api.gui.CloseListener;
@@ -12,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -24,7 +22,7 @@ import java.util.function.Consumer;
 /**
  * A simple confirmation gui.
  */
-public final class ConfirmGui implements InventoryHolder, BlockTopGuiInteractions, ClickListener, CloseListener {
+public final class ConfirmGui extends OpenableInventory implements BlockTopGuiInteractions, ClickListener, CloseListener {
 
     /**
      * The result of a {@link ConfirmGui}
@@ -58,8 +56,6 @@ public final class ConfirmGui implements InventoryHolder, BlockTopGuiInteraction
     }
 
     @Getter
-    private final Player player;
-    @Getter
     private final String title;
     private final Consumer<Result> resultConsumer;
     private boolean alreadyExecuted = false;
@@ -73,12 +69,11 @@ public final class ConfirmGui implements InventoryHolder, BlockTopGuiInteraction
      * @param resultConsumer The consumer to execute after the player has made a choice.
      */
     public ConfirmGui(@NotNull Plugin plugin, @NotNull Player player, @NotNull String title, @NotNull Consumer<Result> resultConsumer) {
+        super(plugin, player);
         Validate.notNull(plugin, "Plugin is null.");
         Validate.isTrue(plugin.isEnabled(), "Plugin is not enabled.");
-        this.player = Objects.requireNonNull(player);
         this.title = Objects.requireNonNull(title);
         this.resultConsumer = Objects.requireNonNull(resultConsumer);
-        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     @Override
@@ -87,6 +82,11 @@ public final class ConfirmGui implements InventoryHolder, BlockTopGuiInteraction
         inv.setItem(21, CONFIRM.clone());
         inv.setItem(23, REJECT.clone());
         return inv;
+    }
+
+    @Override
+    public void openInventory() {
+        Bukkit.getScheduler().callSyncMethod(plugin, () -> player.openInventory(getInventory()));
     }
 
     @Override
