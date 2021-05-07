@@ -1,11 +1,12 @@
 package com.fren_gor.invManagementPlugin;
 
 import com.fren_gor.invManagementPlugin.api.gui.BlockGuiDragging;
-import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiDragging;
 import com.fren_gor.invManagementPlugin.api.gui.BlockGuiInteractions;
+import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiDragging;
 import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
 import com.fren_gor.invManagementPlugin.api.gui.CloseListener;
+import com.fren_gor.invManagementPlugin.api.gui.DragListener;
 import com.fren_gor.invManagementPlugin.api.gui.OpenListener;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -32,10 +33,11 @@ final class GuiListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     private void onDrag(InventoryDragEvent e) {
-        InventoryHolder h = e.getView().getTopInventory().getHolder();
-        if (h instanceof BlockGuiInteractions || h instanceof BlockGuiDragging) {
+        InventoryHolder topHolder = e.getView().getTopInventory().getHolder();
+        InventoryHolder holder = e.getInventory().getHolder();
+        if (topHolder instanceof BlockGuiInteractions || topHolder instanceof BlockGuiDragging) {
             e.setCancelled(true);
-        } else if (e.getInventory().getHolder() instanceof BlockTopGuiInteractions || e.getInventory().getHolder() instanceof BlockTopGuiDragging) {
+        } else if (holder instanceof BlockTopGuiInteractions || holder instanceof BlockTopGuiDragging) {
             int size = e.getInventory().getSize();
             for (int i : e.getRawSlots()) {
                 if (i < size) {
@@ -43,6 +45,10 @@ final class GuiListener implements Listener {
                     break;
                 }
             }
+        }
+
+        if (holder instanceof DragListener) {
+            ((DragListener) holder).onDrag(e);
         }
     }
 
