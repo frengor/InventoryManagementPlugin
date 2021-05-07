@@ -1,7 +1,7 @@
 package com.fren_gor.invManagementPlugin;
 
-import com.fren_gor.invManagementPlugin.api.gui.BlockDraggingOnGui;
-import com.fren_gor.invManagementPlugin.api.gui.BlockDraggingOnTopGui;
+import com.fren_gor.invManagementPlugin.api.gui.BlockGuiDragging;
+import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiDragging;
 import com.fren_gor.invManagementPlugin.api.gui.BlockGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.BlockTopGuiInteractions;
 import com.fren_gor.invManagementPlugin.api.gui.ClickListener;
@@ -33,9 +33,9 @@ final class GuiListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     private void onDrag(InventoryDragEvent e) {
         InventoryHolder h = e.getView().getTopInventory().getHolder();
-        if (h instanceof BlockGuiInteractions || h instanceof BlockDraggingOnGui) {
+        if (h instanceof BlockGuiInteractions || h instanceof BlockGuiDragging) {
             e.setCancelled(true);
-        } else if (e.getInventory().getHolder() instanceof BlockTopGuiInteractions || e.getInventory().getHolder() instanceof BlockDraggingOnTopGui) {
+        } else if (e.getInventory().getHolder() instanceof BlockTopGuiInteractions || e.getInventory().getHolder() instanceof BlockTopGuiDragging) {
             int size = e.getInventory().getSize();
             for (int i : e.getRawSlots()) {
                 if (i < size) {
@@ -72,14 +72,14 @@ final class GuiListener implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     private void onOpen(InventoryOpenEvent e) {
         if (e.getInventory().getHolder() instanceof OpenListener) {
             ((OpenListener) e.getInventory().getHolder()).onOpen(e);
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     private void onClose(InventoryCloseEvent e) {
         if (e.getInventory().getHolder() instanceof CloseListener) {
             ((CloseListener) e.getInventory().getHolder()).onClose(e);

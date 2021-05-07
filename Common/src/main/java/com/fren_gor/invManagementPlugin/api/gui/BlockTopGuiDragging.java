@@ -4,5 +4,5 @@ package com.fren_gor.invManagementPlugin.api.gui;
  * Implement alongside {@link org.bukkit.inventory.InventoryHolder} to block item dragging on the top<br>
  * inventory of a {@link org.bukkit.inventory.InventoryView}.
  */
-public interface BlockDraggingOnTopGui {
+public interface BlockTopGuiDragging {
 }
