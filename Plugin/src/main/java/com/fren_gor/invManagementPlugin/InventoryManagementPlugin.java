@@ -6,6 +6,7 @@ import com.fren_gor.invManagementPlugin.command.FGive;
 import com.fren_gor.invManagementPlugin.util.serializable.Bundle;
 import com.fren_gor.invManagementPlugin.util.serializable.Items;
 import com.fren_gor.savingUtil.SavingUtil;
+import com.fren_gor.savingUtil.SavingUtil.LoadResult;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -122,12 +123,11 @@ public class InventoryManagementPlugin extends JavaPlugin implements Listener {
         if (!items.contains(p)) {
             return null;
         }
-        try {
-            return savings.load(p.getUniqueId().toString());
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
+        LoadResult<Items> l = savings.loadOrCorrupt(p.getUniqueId().toString());
+        if (l.isCorrupted()) {
             return null;
         }
+        return l.getObject();
     }
 
     @EventHandler

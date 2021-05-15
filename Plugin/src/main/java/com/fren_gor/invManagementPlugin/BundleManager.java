@@ -2,12 +2,11 @@ package com.fren_gor.invManagementPlugin;
 
 import com.fren_gor.invManagementPlugin.util.serializable.Bundle;
 import com.fren_gor.savingUtil.SavingUtil;
+import com.fren_gor.savingUtil.SavingUtil.LoadResult;
 import lombok.Getter;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.List;
 
 public final class BundleManager {
@@ -24,12 +23,11 @@ public final class BundleManager {
 
     @Nullable
     public Bundle loadBundle(@NotNull String name) {
-        try {
-            return savings.load(name);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
+        LoadResult<Bundle> b = savings.loadOrCorrupt(name);
+        if (b.isCorrupted()) {
             return null;
         }
+        return b.getObject();
     }
 
     public List<String> list() {
