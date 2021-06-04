@@ -46,6 +46,11 @@
                 <filtering>true</filtering>
                 <directory>src/main/resources/</directory>
             </resource>
+            <resource>
+                <targetPath>META-INF/.libs/</targetPath>
+                <filtering>false</filtering>
+                <directory>src/licenses/</directory>
+            </resource>
         </resources>
 
         <plugins>
