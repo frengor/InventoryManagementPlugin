@@ -1,4 +1,6 @@
 # InventoryManagementPlugin
+[![Build Status](https://jenkins.frengor.com/job/InventoryManagementPlugin/badge/icon)](https://jenkins.frengor.com/job/InventoryManagementPlugin/)
+
 An inventory management plugin.
 
 **JavaDoc:** <https://frengor.com/javadocs/InventoryManagementPlugin/build-server/>
