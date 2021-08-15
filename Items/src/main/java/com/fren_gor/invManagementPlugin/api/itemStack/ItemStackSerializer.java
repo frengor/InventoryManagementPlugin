@@ -40,9 +40,9 @@ public final class ItemStackSerializer {
     private static final byte INV_VERSION = 0x01;
 
     static {
-        Class<?> nbtTagCompoundClass = ReflectionUtil.getNMSClass("NBTTagCompound");
-        Class<?> nmsItemStackClass = ReflectionUtil.getNMSClass("ItemStack");
-        Class<?> nbtCompressedStreamToolsClass = ReflectionUtil.getNMSClass("NBTCompressedStreamTools");
+        Class<?> nbtTagCompoundClass = ReflectionUtil.getNMSClass("NBTTagCompound", "nbt");
+        Class<?> nmsItemStackClass = ReflectionUtil.getNMSClass("ItemStack", "world.item");
+        Class<?> nbtCompressedStreamToolsClass = ReflectionUtil.getNMSClass("NBTCompressedStreamTools", "nbt");
         Class<?> craftItemStackClass = ReflectionUtil.getCBClass("inventory.CraftItemStack");
         try {
             nbtTagCompoundConstructor = nbtTagCompoundClass.getDeclaredConstructor();

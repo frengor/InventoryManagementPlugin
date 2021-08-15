@@ -14,18 +14,18 @@ public class ReflectionUtil {
     private static final String COMPLETE_VERSION = Bukkit.getServer().getClass().getName().split("\\.")[3];
     public static final int VERSION = Integer.parseInt(COMPLETE_VERSION.split("_")[1]);
     public static final int RELEASE = Integer.parseInt(COMPLETE_VERSION.split("R")[1]);
+    public static final boolean IS_1_17 = VERSION >= 17;
 
     /**
      * @param name The class name
      * @return The NMS class
      */
-    public static Class<?> getNMSClass(String name) {
+    public static Class<?> getNMSClass(String name, String mcPackaage) {
+        String path = "net.minecraft." + (IS_1_17 ? mcPackaage : "server." + COMPLETE_VERSION) + '.' + name;
         try {
-            return Class.forName(
-                    "net.minecraft.server." + Bukkit.getServer().getClass().getName().split("\\.")[3] + "." + name);
+            return Class.forName(path);
         } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().info("[Reflection] Can't find NMS Class! (" + "net.minecraft.server."
-                    + Bukkit.getServer().getClass().getName().split("\\.")[3] + "." + name + ")");
+            Bukkit.getLogger().info("[Reflection] Can't find NMS Class! (" + path + ")");
             return null;
         }
     }
@@ -36,11 +36,9 @@ public class ReflectionUtil {
      */
     public static Class<?> getCBClass(String name) {
         try {
-            return Class.forName(
-                    "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getName().split("\\.")[3] + "." + name);
+            return Class.forName("org.bukkit.craftbukkit." + COMPLETE_VERSION + "." + name);
         } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().info("[Reflection] Can't find CB Class! (" + "org.bukkit.craftbukkit."
-                    + Bukkit.getServer().getClass().getName().split("\\.")[3] + "." + name + ")");
+            Bukkit.getLogger().info("[Reflection] Can't find CB Class! (" + "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getName().split("\\.")[3] + "." + name + ")");
             return null;
         }
     }

@@ -29,9 +29,9 @@ public class FGive implements CommandExecutor, TabCompleter {
 
     static {
         final Class<?> craftItemStack = ReflectionUtil.getCBClass("inventory.CraftItemStack");
-        final Class<?> nmsItemStack = ReflectionUtil.getNMSClass("ItemStack");
-        final Class<?> nmsNBTTagCompound = ReflectionUtil.getNMSClass("NBTTagCompound");
-        final Class<?> nmsMojangsonParser = ReflectionUtil.getNMSClass("MojangsonParser");
+        final Class<?> nmsItemStack = ReflectionUtil.getNMSClass("ItemStack", "world.item");
+        final Class<?> nmsNBTTagCompound = ReflectionUtil.getNMSClass("NBTTagCompound", "nbt");
+        final Class<?> nmsMojangsonParser = ReflectionUtil.getNMSClass("MojangsonParser", "nbt");
 
         try {
             asCraftCopy = craftItemStack.getDeclaredMethod("asCraftCopy", ItemStack.class);
