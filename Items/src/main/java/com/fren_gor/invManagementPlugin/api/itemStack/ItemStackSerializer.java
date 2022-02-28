@@ -66,7 +66,7 @@ public final class ItemStackSerializer {
                 nmsItemStackConstructor = nmsItemStackClass.getDeclaredConstructor(nbtTagCompoundClass);
                 nmsItemStackConstructor.setAccessible(true);
             }
-        } catch (ReflectiveOperationException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         try {
@@ -80,7 +80,7 @@ public final class ItemStackSerializer {
             e.printStackTrace();
         }
         try {
-            save = nmsItemStackClass.getMethod("save", nbtTagCompoundClass);
+            save = nmsItemStackClass.getMethod(VERSION == 18 ? "b" : "save", nbtTagCompoundClass);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }

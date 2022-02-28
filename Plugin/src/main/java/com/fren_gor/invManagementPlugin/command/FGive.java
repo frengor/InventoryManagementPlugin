@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static com.fren_gor.invManagementPlugin.util.ReflectionUtil.VERSION;
+
 public class FGive implements CommandExecutor, TabCompleter {
 
     // fgive <target> <item> [count]
@@ -45,12 +47,12 @@ public class FGive implements CommandExecutor, TabCompleter {
             e.printStackTrace();
         }
         try {
-            setTag = nmsItemStack.getDeclaredMethod("setTag", nmsNBTTagCompound);
+            setTag = nmsItemStack.getDeclaredMethod(VERSION == 18 ? "c" : "setTag", nmsNBTTagCompound);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         try {
-            parse = nmsMojangsonParser.getDeclaredMethod("parse", String.class);
+            parse = nmsMojangsonParser.getDeclaredMethod(VERSION == 18 ? "a" : "parse", String.class);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
